@@ -1,0 +1,34 @@
+name: Deploy Netlify PR Preview
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  deploy_preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Deploy to Netlify
+        uses: netlify/actions/cli@v1
+        with:
+          args: deploy --dir=build --json
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+      - name: Add Netlify Deploy Comment
+        uses: netlify/actions/deploy-comment@v1
+        with:
+          netlify_site_id: ${{ secrets.NETLIFY_SITE_ID }}
+          netlify_auth_token: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          pull_request_number: ${{ github.event.pull_request.number }}
