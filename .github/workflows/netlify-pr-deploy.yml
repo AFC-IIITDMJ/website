@@ -1,17 +1,41 @@
-name: 'Netlify Preview Deploy'
+name: Netlify Preview Deployment
 
 on:
   pull_request:
-    types: ['opened', 'edited', 'synchronize']
+    branches: [master]
+    types: [opened, synchronize, reopened]
 
 jobs:
-  deploy:
-    name: 'Deploy'
+  deploy_preview:
     runs-on: ubuntu-latest
+    
+    if: github.event_name == 'pull_request'
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: jsmrcaga/action-netlify-deploy@v2.0.0
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
+          node-version: '22'
+          cache: 'npm' 
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build React Application
+        run: npm run build
+        
+      - name: Deploy to Netlify (Preview URL)
+        uses: netlify/actions/cli@v2
+        with:
+          publish-dir: './dist' 
+          production-deploy: false 
+          
+        env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          BASE_URL: ${{ github.event.pull_request.head.sha }} 
+
+      - name: Display Deployment URL
+        run: echo "Netlify Preview URL is ready!"
