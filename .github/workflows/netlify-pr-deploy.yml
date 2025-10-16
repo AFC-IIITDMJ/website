@@ -4,9 +4,12 @@ on:
   pull_request:
     branches: [master]
     types: [opened, synchronize, reopened]
-
+    
 permissions:
-  contents: write
+  issues: write
+  pull-requests: write
+  contents: read
+
 
 jobs:
   deploy_preview:
