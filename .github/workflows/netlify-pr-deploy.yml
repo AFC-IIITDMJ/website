@@ -5,6 +5,9 @@ on:
     branches: [master]
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: write
+
 jobs:
   deploy_preview:
     runs-on: ubuntu-22.04
